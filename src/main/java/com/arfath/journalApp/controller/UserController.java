@@ -1,9 +1,11 @@
 package com.arfath.journalApp.controller;
 
 
+import com.arfath.journalApp.api.responses.WeatherResponse;
 import com.arfath.journalApp.entity.User;
 import com.arfath.journalApp.repository.UserRepository;
 import com.arfath.journalApp.service.UserService;
+import com.arfath.journalApp.service.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private WeatherService weatherService;
+
     @PutMapping
     public ResponseEntity<?> updateUser(@RequestBody User user) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); //this will get the auth details
@@ -29,6 +34,7 @@ public class UserController {
         User userInDb = userService.findByUserName(userName);
             userInDb.setUserName(user.getUserName()); //no need of if here cuz once the user is auth there no need for if to verify weather the user is present or not
             userInDb.setPassword(user.getPassword());
+            userInDb.setEmail(user.getEmail()); //this line was added by me for updating email also
             userService.saveNewUser(userInDb);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -38,7 +44,16 @@ public class UserController {
         userRepository.deleteByUserName(authentication.getName());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
+    @GetMapping
+    public ResponseEntity<?> greetings(){ //this is a dummy method with no real use case to our journal app
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        WeatherResponse weatherInfo = weatherService.getWeather("mumbai");
+        String weather =" ";
+        if(weatherInfo != null){
+             weather += "weather feels like : "+weatherInfo.getCurrent().getFeelslike();
+        }
+        return new ResponseEntity<>("hi.. "+authentication.getName() +weather,HttpStatus.OK);
+    }
 }
 
 

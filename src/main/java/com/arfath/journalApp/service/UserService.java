@@ -46,10 +46,6 @@ public class UserService {
 //            severity increases from low to high from top to bottom
 //            only info and above is getting printed for all to be printed we must enable the trace cuz least severity ie log level
 //            enabled trace in application.yml -- success all the levels are getting printed
-              log.trace("error occurred");
-              log.debug("error occurred");
-              log.info("error occurred");
-              log.warn("error occurred");
               log.error("error occurred");
 
             return false;

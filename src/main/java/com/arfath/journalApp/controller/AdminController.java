@@ -1,5 +1,6 @@
 package com.arfath.journalApp.controller;
 
+import com.arfath.journalApp.cache.AppCache;
 import com.arfath.journalApp.entity.User;
 import com.arfath.journalApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class AdminController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private AppCache appCache;
+
     @PostMapping("/create-admin")
     public void createAdmin(@RequestBody User user){
         userService.saveNewAdmin(user);
@@ -29,4 +33,10 @@ public class AdminController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/clear-cache")
+    private void clearCache(){ //this is just like refresh without restating the whole application
+        appCache.init();
+    }
+
 }

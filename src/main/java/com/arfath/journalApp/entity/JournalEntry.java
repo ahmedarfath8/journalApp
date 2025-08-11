@@ -1,5 +1,6 @@
 package com.arfath.journalApp.entity;
 
+import com.arfath.journalApp.enums.Sentiments;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -19,4 +20,5 @@ public class JournalEntry {
     private String title;
     private String content;
     private LocalDateTime date;
+    private Sentiments sentiments; //tough datatype is enum it will be stored as string in the db and treated as sentiment (enum)
 }
