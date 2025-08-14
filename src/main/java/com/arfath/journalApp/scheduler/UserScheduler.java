@@ -4,6 +4,7 @@ import com.arfath.journalApp.cache.AppCache;
 import com.arfath.journalApp.entity.JournalEntry;
 import com.arfath.journalApp.entity.User;
 import com.arfath.journalApp.enums.Sentiments;
+import com.arfath.journalApp.model.SentimentData;
 import com.arfath.journalApp.repository.UserRepositoryImpl;
 import com.arfath.journalApp.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,8 @@ public class UserScheduler {
     @Autowired
     private AppCache appCache;
 
-
+    @Autowired
+    private KafkaTemplate<String,SentimentData> kafkaTemplate;
 
     @Scheduled(cron = "0 0/10 * ? * *")
     public void clearAppCache(){
@@ -61,7 +63,10 @@ public class UserScheduler {
                 }
             }
             if(mostFrequentSentiment != null){
-                emailService.sendEmail(user.getEmail(),"sentimental analysis of past seven days",mostFrequentSentiment.toString());
+                //emailService.sendEmail(user.getEmail(),"sentimental analysis of past seven days",mostFrequentSentiment.toString()); //this is directly sending email if email service goes down it will all go down cuz its sync will wait for it
+                //for decoupling / loosely coupled we introduce kafka
+                SentimentData sentimentData = SentimentData.builder().email(user.getEmail()).sentiment("sentimental analysis of past seven days" + mostFrequentSentiment).build();
+                kafkaTemplate.send("weekly-sentiment",sentimentData.getEmail(),sentimentData);
             }
         }
     }
